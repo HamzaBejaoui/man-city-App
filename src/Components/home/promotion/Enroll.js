@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Fade from 'react-reveal/Fade';
 import FormField from './../../ui/formFields';
 import { validate } from '../../ui/misc';
+import { firebasePromotions } from '../../../firebase';
 
 class Enroll extends Component {
 
@@ -85,8 +86,18 @@ class Enroll extends Component {
         }
 
         if (formIsValid) {
-            console.log(dataToSubmit);
-            this.resetFormSuccess();
+            firebasePromotions.orderByChild('email').equalTo(dataToSubmit.email).once("value")
+                .then((snapshot) => {
+                    if (snapshot.val() === null) {
+                        firebasePromotions.push(dataToSubmit);
+                        this.resetFormSuccess(true);
+                    } else {
+                        this.resetFormSuccess(false);
+                    }
+                });
+
+
+            // this.resetFormSuccess();
         } else {
             this.setState({
                 formError: true
